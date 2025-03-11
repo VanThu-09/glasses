@@ -1,7 +1,26 @@
-import Image from 'next/image'
-
-export default function Home() {
+"use client"
+import Image from 'next/image';
+import Link from 'next/link';
+import React, { useEffect, useState } from 'react';
+import { useRouter } from "next/navigation";
+import Opening  from '@/components/opening';
+import { Imprima } from 'next/font/google';
+import Onsale from '@/components/onsale';
+import Why from '@/components/why';
+import ItemsNew from '@/components/itemsNew';
+import YouKnow from '@/components/youKnow';
+export default function Home({
+  children,
+}: {
+  children: React.ReactNode
+}) {
   return (
-    <div><h1 className='mt-80 text-black'>Lorem ipsum dolor sit amet consectetur adipisicing elit. Tempora quae eius corrupti, aliquam reprehenderit pariatur? Sed labore alias rerum veritatis quo veniam voluptate consequatur, fuga similique, esse, reiciendis ab accusantium?</h1></div>
+    <div className='mt-10'>
+      <Opening />
+      <Onsale />
+      <Why />
+      <ItemsNew/>
+      <YouKnow />
+    </div>
   )
 }
