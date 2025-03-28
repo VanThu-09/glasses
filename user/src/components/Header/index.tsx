@@ -38,7 +38,7 @@ export default function Header() {
         );
     };
     return (
-        <div className='text-black fixed sticky shadow top-0 z-[50]' style={{ height: "max-content" }}>
+        <div className='text-black  sticky shadow top-0 z-[50]' style={{ height: "max-content" }}>
             <div className="navbar bg-base-100 flex justify-between">
                 <div className='flex gap-8'>
                     <Link href={"/"} className="grid justify-items-center">
@@ -80,7 +80,7 @@ export default function Header() {
                                 </div>
                             </button>
                             <ul className={`menu dropdown-content menu-sm bg-base-100 rounded-box z-[1] mt-3 w-32 p-2 shadow ${isOpen ? "block" : "hidden"}`}>
-                                <li><Link href="#">Profile</Link></li>
+                                <li><Link href="/profile">Profile</Link></li>
                                 <li><Link href={"/orders"}>Your Order</Link></li>
                                 <li><Link href="#">Settings</Link></li>
                                 {isLoggedIn ? (
