@@ -5,6 +5,38 @@ import Image from 'next/image';
 export default function Header() {
     const [isOpen, setIsOpen] = useState(false);
     const menuRef = useRef(null);
+    const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+    useEffect(() => {
+        // Kiểm tra xem token có trong localStorage không
+        const token = localStorage.getItem("accessToken");
+        if (token) {
+            setIsLoggedIn(true);
+        }
+    }, []);
+
+    const handleLogout = () => {
+        localStorage.removeItem("accessToken"); // Xóa token
+        setIsLoggedIn(false); // Cập nhật giao diện
+    };
+
+    const UserDropdown = () => {
+        const [isOpen, setIsOpen] = useState(false);
+        const menuRef = useRef(null);
+
+        return (
+            <ul className={`menu dropdown-content menu-sm bg-base-100 rounded-box z-[1] mt-3 w-32 p-2 shadow ${isOpen ? "block" : "hidden"}`}>
+                <li><Link href="#">Profile</Link></li>
+                <li><Link href={"/orders"}>Your Order</Link></li>
+                <li><Link href="#">Settings</Link></li>
+                {isLoggedIn ? (
+                    <li><button onClick={handleLogout}>Logout</button></li>
+                ) : (
+                    <li><Link href={"/log/index.html"}>Login</Link></li>
+                )}
+            </ul>
+        );
+    };
     return (
         <div className='text-black fixed sticky shadow top-0 z-[50]' style={{ height: "max-content" }}>
             <div className="navbar bg-base-100 flex justify-between">
@@ -41,14 +73,21 @@ export default function Header() {
                         <div ref={menuRef} className="dropdown dropdown-end relative">
                             <button className="btn btn-ghost btn-circle avatar" onClick={() => setIsOpen(!isOpen)}>
                                 <div className="w-10 rounded-full">
-                                    <img alt="User Avatar" src="https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp" />
+                                    <img
+                                        alt="User Avatar"
+                                        src="https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp"
+                                    />
                                 </div>
                             </button>
                             <ul className={`menu dropdown-content menu-sm bg-base-100 rounded-box z-[1] mt-3 w-32 p-2 shadow ${isOpen ? "block" : "hidden"}`}>
                                 <li><Link href="#">Profile</Link></li>
-                                <li><Link href={"/orders"}>Your Oder</Link></li>
-                                <li><Link href={"#"}>Settings</Link></li>
-                                <li><Link href={"/log/index.html"}>Login</Link></li>
+                                <li><Link href={"/orders"}>Your Order</Link></li>
+                                <li><Link href="#">Settings</Link></li>
+                                {isLoggedIn ? (
+                                    <li><button onClick={handleLogout}>Log Out</button></li>
+                                ) : (
+                                    <li><Link href={"/log/index.html"}>Log In</Link></li>
+                                )}
                             </ul>
                         </div>
                     </div>

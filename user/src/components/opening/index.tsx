@@ -30,14 +30,14 @@ export default function () {
             <h1 className='text-5xl mt-3'>Chuỗi cửa hàng gọng kính uy tín nhất Hà Nội gốc</h1>
             <div className='grid grid-cols-2 mt-16 gap-14 '>
                 <div className='col-span-1'>
-                    <p className='text-2xl'>Với phương châm “Kính mắt Eye Plus - Thân Thiện Với Đôi Mắt Mọi Người” & “Khách hàng là tài sản quý giá nhất của doanh nghiệp”</p>
+                    <p className='text-2xl'>Với phương châm “Kính mắt Glasses-VT - Thân Thiện Với Đôi Mắt Mọi Người” & “Khách hàng là tài sản quý giá nhất của doanh nghiệp”</p>
                     <Link href={"#"} className='mt-5 flex border border-red-500 text-red-500 rounded-2xl p-2' style={{ width: "max-content" }}>
-                        <p className='font-bold'>Tìm hiểu thêm về Glasses-VT</p>
+                        <p >Tìm hiểu thêm về Glasses-VT</p>
                         <svg className='w-6 h-6' xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="rgba(255,0,0,1)"><path d="M16.1716 10.9999L10.8076 5.63589L12.2218 4.22168L20 11.9999L12.2218 19.778L10.8076 18.3638L16.1716 12.9999H4V10.9999H16.1716Z"></path></svg>
                     </Link>
                 </div>
                 <div className='col-span-1'>
-                    <p>Với 10 năm kính nghiệm trên thị trường kính mắt Việt, Eye Plus tự hào là đơn vị cung cấp các sản phẩm và dịch vụ về kính mắt uy tín tại Việt Nam. Các sản phẩm được tuyển chọn kỹ lưỡng, đạt độ tinh xảo và chất lượng cao, hướng đến trải nghiệm tốt nhất cho khách hàng.</p>
+                    <p>Với 10 năm kính nghiệm trên thị trường kính mắt Việt, Glasses-VT tự hào là đơn vị cung cấp các sản phẩm và dịch vụ về kính mắt uy tín tại Việt Nam. Các sản phẩm được tuyển chọn kỹ lưỡng, đạt độ tinh xảo và chất lượng cao, hướng đến trải nghiệm tốt nhất cho khách hàng.</p>
                 </div>
             </div>
         </div>
