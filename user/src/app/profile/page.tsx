@@ -33,10 +33,6 @@ export default function Profile() {
                             <label className="font-medium text-lg">Address:</label>
                             <p>Chuong My que toi</p>
                         </div>
-                        <div className="flex justify-between border p-3 rounded-md">
-                            <label className="font-medium text-lg">Gender:</label>
-                            <p>Nam</p>
-                        </div>
                     </div>
                     <div className="flex justify-end mt-4">
                         <Link href={"/"}><button className="bg-gray-300 px-3 py-1 rounded mr-2">Cancel</button></Link>

@@ -104,9 +104,9 @@ export default function ProductDetailsPage({ params }: { params: { productId: st
                     <div className='col-span-3'>
                         <div className="w-full max-w-2xl mx-auto relative">
                             <div className="relative flex justify-center">
-                                <button onClick={prevSlide} className="absolute left-11 top-1/2 transform -translate-y-1/2  text-red-500 shadow bg-white p-2 rounded-full">&#10094;</button>
+                                <button onClick={prevSlide} className="absolute left-11 top-1/2 transform -translate-y-1/2  text-red-500 shadow bg-neutral-50 p-2 rounded-full">&#10094;</button>
                                 <img src={images[currentIndex]} alt="Slideshow" className="w-10/12 object-cover rounded-lg shadow-md" />
-                                <button onClick={nextSlide} className="absolute right-11 top-1/2 transform -translate-y-1/2 text-red-500 shadow bg-white p-2 rounded-full">&#10095;</button>
+                                <button onClick={nextSlide} className="absolute right-11 top-1/2 transform -translate-y-1/2 text-red-500 shadow bg-neutral-50 p-2 rounded-full">&#10095;</button>
                             </div>
                             <div className="flex justify-center gap-2 mt-4">
                                 {images.map((image, index) => (
@@ -187,9 +187,9 @@ export default function ProductDetailsPage({ params }: { params: { productId: st
             </div>
             {/* Thông tin chi tiết sản phẩm và sản phẩm liên quan */}
             <div className='mt-10 mx-40'>
-                <p className='text-2xl'>Sản phẩm khác</p>
-                <div className='grid grid-cols-4 gap-4 mt-5'>
-                    {relatedProducts.map(relatedProduct => (
+                <p className='text-2xl'>Sản phẩm khác:</p>
+                <div className='grid grid-cols-5 gap-4 mt-5'>
+                    {relatedProducts.slice(0, 5).map(relatedProduct => (
                         <div key={relatedProduct.id} className='col-span-1 grid gap-2 hover:text-red-500 transition duration-300'>
                             <img src={relatedProduct.images?.split(',')[0]} alt={relatedProduct.name} width={300} height={300} />
                             <p className='font-bold'>{relatedProduct.name}</p>
