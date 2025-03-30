@@ -1,23 +1,102 @@
 "use client";
-import React from 'react';
-import { useState } from "react";
+import React, { useEffect, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-export default function ProductsDetails() {
-    const images = [
-        "https://kinhmateyeplus.com/wp-content/uploads/2024/11/IMG_9798.png",
-        "https://kinhmateyeplus.com/wp-content/uploads/2024/11/IMG_9798.png",
-        "https://kinhmateyeplus.com/wp-content/uploads/2024/11/IMG_9798.png",
-        "https://kinhmateyeplus.com/wp-content/uploads/2024/11/IMG_9798.png"
-    ];
+import { useRouter } from 'next/navigation';
+
+export default function ProductDetailsPage({ params }: { params: { productId: string } }) {
+    const router = useRouter();
+    const { productId } = params;
+
+    interface Product {
+        id: React.Key | null | undefined;
+        name: string;
+        price: number;
+        short_desc?: string;
+        quantity: number;
+        images?: string;
+        category?: string;
+    }
+    console.log("Product ID:", params.productId);
+    console.log("Fetching product...");
+    console.log("API Body:", JSON.stringify({ page: 1, limit: 1, filter: { _id: params.productId } }));
+    console.log("Params object:", params); // Kiểm tra toàn bộ params
+    console.log("Product ID:", params?.productId);
+    const [product, setProduct] = useState<Product | null>(null);
+    const [relatedProducts, setRelatedProducts] = useState<Product[]>([]);
     const [currentIndex, setCurrentIndex] = useState(0);
+    const [count, setCount] = useState(1);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
+
+    useEffect(() => {
+        async function fetchProductDetails() {
+            setLoading(true);
+            setError(null);
+            console.log("Fetching product with ID:", params.productId); // Kiểm tra ID
+            try {
+                const response = await fetch("https://glassmanagement.vercel.app/api/product/get-paginated", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ page: 1, limit: 1, filter: { _id: params.productId } }),
+                });
+
+                if (!response.ok) throw new Error(`Failed to fetch product details: ${response.statusText}`);
+
+                const data = await response.json();
+                console.log("API Response:", data);
+
+                if (data && data.data.length > 0) {
+                    setProduct(data.data[0]);
+                } else {
+                    setError("Product not found.");
+                }
+                setLoading(false);
+            } catch (err: any) {
+                setError(err.message);
+                setLoading(false);
+            }
+        }
+
+        if (params.productId) fetchProductDetails();
+    }, [params.productId]);
+
+    useEffect(() => {
+        async function fetchRelatedProducts() {
+            if (!product || !product.category) return;
+
+            try {
+                const response = await fetch("https://glassmanagement.vercel.app/api/product/get-paginated", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ page: 1, limit: 4, filter: { category: product.category } }),
+                });
+
+                if (!response.ok) throw new Error(`Failed to fetch related products: ${response.statusText}`);
+
+                const data = await response.json();
+                setRelatedProducts(data.data);
+            } catch (err) {
+                console.error("Fetch error:", err);
+            }
+        }
+
+        if (product) fetchRelatedProducts();
+    }, [product]);
+
+    if (loading) return <p>Loading...</p>;
+    if (error) return <p>Error: {error}</p>;
+    if (!product) return <p>Product not found.</p>;
+
+    const images = product.images?.split(',') || [];
+
     const prevSlide = () => {
         setCurrentIndex((prevIndex) => (prevIndex === 0 ? images.length - 1 : prevIndex - 1));
     };
+
     const nextSlide = () => {
         setCurrentIndex((prevIndex) => (prevIndex === images.length - 1 ? 0 : prevIndex + 1));
     };
-    const [count, setCount] = useState(1);
     return (
         <div>
             <div className='mx-32 mt-20'>
@@ -25,82 +104,37 @@ export default function ProductsDetails() {
                     <div className='col-span-3'>
                         <div className="w-full max-w-2xl mx-auto relative">
                             <div className="relative flex justify-center">
-                                <button
-                                    onClick={prevSlide}
-                                    className="absolute left-11 top-1/2 transform -translate-y-1/2  text-red-500 shadow bg-white p-2 rounded-full"
-                                >
-                                    &#10094;
-                                </button>
-                                <img
-                                    src={images[currentIndex]}
-                                    alt="Slideshow"
-                                    className="w-10/12 object-cover rounded-lg shadow-md"
-                                />
-                                <button
-                                    onClick={nextSlide}
-                                    className="absolute right-11 top-1/2 transform -translate-y-1/2 text-red-500 shadow bg-white p-2 rounded-full"
-                                >
-                                    &#10095;
-                                </button>
+                                <button onClick={prevSlide} className="absolute left-11 top-1/2 transform -translate-y-1/2  text-red-500 shadow bg-white p-2 rounded-full">&#10094;</button>
+                                <img src={images[currentIndex]} alt="Slideshow" className="w-10/12 object-cover rounded-lg shadow-md" />
+                                <button onClick={nextSlide} className="absolute right-11 top-1/2 transform -translate-y-1/2 text-red-500 shadow bg-white p-2 rounded-full">&#10095;</button>
                             </div>
                             <div className="flex justify-center gap-2 mt-4">
                                 {images.map((image, index) => (
-                                    <img
-                                        key={index}
-                                        src={image}
-                                        alt={`Thumbnail ${index + 1}`}
-                                        className={`w-16 h-16 object-cover rounded-lg cursor-pointer border-2 ${index === currentIndex ? "border-red-200" : "border-gray-100"
-                                            }`}
-                                        onClick={() => setCurrentIndex(index)}
-                                    />
+                                    <img key={index} src={image} alt={`Thumbnail ${index + 1}`} className={`w-16 h-16 object-cover rounded-lg cursor-pointer border-2 ${index === currentIndex ? "border-red-200" : "border-gray-100"}`} onClick={() => setCurrentIndex(index)} />
                                 ))}
                             </div>
                         </div>
                     </div>
                     <div className='col-span-3'>
-                        <p className='text-2xl'>
-                            GỌNG KÍNH BLANCY 1012 - C12 Trắng
-                        </p>
-                        <p className='text-xl mt-10 font-bold bg-orange-50 p-3 text-red-500'>
-                            360.000đ
-                        </p>
-                        <div className='my-5'>
-                            <p className='mb-2'>Chất liệu nhựa nguyên khối cao cấp nay có thêm kiểu dáng MẮT MÈO cho các chị em thoải mái với mọi lựa chọn.</p>
-                            <p>Gọng kính BL 1012 dáng mắt mèo cá tính có điểm nhấn nổi bật nằm ở thiết kế hai bên càng kính. Form dáng cá tính, và độc đáo, thích hợp làm mới vẻ ngoài của người sử dụng.</p>
-                        </div>
-                        <p>
-                            Kho còn: <span className='text-gray-400'>54</span>
-                        </p>
+                        <p className='text-2xl'>{product.name}</p>
+                        <p className='text-xl mt-10 font-bold bg-orange-50 p-3 text-red-500'>{(product.price || 0).toLocaleString()}đ</p>
+                        <div className='my-5'>{product.short_desc?.split('\n').map((line, index) => (<p key={index}>{line}</p>))}</div>
+                        <p>Kho còn: <span className='text-gray-400'>{product.quantity}</span></p>
                         <div className='grid grid-cols-2 gap-4 mt-10'>
                             <div className='col-span-1 grid gap-2 hover:text-red-500 transition duration-300'>
                                 <div className='flex justify-center'>
                                     <div className="flex border rounded-3xl p-2 w-full justify-between">
-                                        <button
-                                            className="rounded-lg px-3 hover:bg-gray-300 text-xl duration-300:opacity-50"
-                                            onClick={() => setCount(count - 1)}
-                                         duration-300={count === 1}
-                                        >
-                                            －
-                                        </button>
+                                        <button className="rounded-lg px-3 hover:bg-gray-300 text-xl duration-300:opacity-50" onClick={() => setCount(count - 1)} disabled={count === 1}>－</button>
                                         <span className="text-xl font-semibold">{count}</span>
-                                        <button
-                                            className="rounded-lg px-2 hover:bg-gray-300 text-xl"
-                                            onClick={() => setCount(count + 1)}
-                                        >
-                                            ＋
-                                        </button>
+                                        <button className="rounded-lg px-2 hover:bg-gray-300 text-xl" onClick={() => setCount(count + 1)}>＋</button>
                                     </div>
                                 </div>
                             </div>
                             <div className='col-span-1 grid gap-2 hover:text-red-500 transition duration-300'>
-                                <button className='rounded-3xl p-2 text-lg font-bold border-black border w-full'>
-                                    Thêm vào giỏ hàng
-                                </button>
+                                <button className='rounded-3xl p-2 text-lg font-bold border-black border w-full'>Thêm vào giỏ hàng</button>
                             </div>
                         </div>
-                        <button className='mt-5 bg-red-500 rounded-3xl p-2 w-full'>
-                            <p className='text-center text-2xl text-white'>Mua ngay</p>
-                        </button>
+                        <button className='mt-5 bg-red-500 rounded-3xl p-2 w-full'><p className='text-center text-2xl text-white'>Mua ngay</p></button>
                     </div>
                     <div className='col-span-1 ms-7'>
                         <div className='grid gap-1 border-b shadow p-2'>
@@ -151,41 +185,19 @@ export default function ProductsDetails() {
                     </div>
                 </div>
             </div>
+            {/* Thông tin chi tiết sản phẩm và sản phẩm liên quan */}
             <div className='mt-10 mx-40'>
-                <p className='text-3xl'>ĐẶC ĐIỂM GỌNG KÍNH NHỰA CAO CẤP BL 1012</p>
-                <ul className='list-disc ms-5 mt-5 grid gap-3'>
-                    <li>Màu sắc: <span className='font-bold'>C12 TRẮNG</span></li>
-                    <li>Kiểu dáng: <span className='font-bold'>Mắt mèo</span></li>
-                    <li>Chất liệu: <span className='font-bold'><span className='font-bold'>C12 TRẮNG</span></span></li>
-                    <li><span className='font-bold'>Nhựa nguyên khối cao cấp</span></li>
-                </ul>
-                <p className='mt-10 text-3xl'>MUA GỌNG KÍNH NHỰA CAO CẤP CAO CẤP GIÁ TỐT TẠI <span className='text-red-500 font-bold'>GLASSES-VT</span></p>
-                <div className='mt-20'>
-                    <p className='text-2xl'>Sản phẩm khác</p>
-                    <div className='grid grid-cols-4 gap-4 mt-5'>
-                        <div className='col-span-1 grid gap-2 hover:text-red-500 transition duration-300'>
-                            <img src="https://kinhmateyeplus.com/wp-content/uploads/2024/11/IMG_9798.png" alt="" width={300} height={300} />
-                            <p className='font-bold'>GỌNG KÍNH BLANCY 1012 - C12 Trắng</p>
-                            <p className='text-red-500 font-bold'>360.000đ</p>
+                <p className='text-2xl'>Sản phẩm khác</p>
+                <div className='grid grid-cols-4 gap-4 mt-5'>
+                    {relatedProducts.map(relatedProduct => (
+                        <div key={relatedProduct.id} className='col-span-1 grid gap-2 hover:text-red-500 transition duration-300'>
+                            <img src={relatedProduct.images?.split(',')[0]} alt={relatedProduct.name} width={300} height={300} />
+                            <p className='font-bold'>{relatedProduct.name}</p>
+                            <p className='text-red-500 font-bold'>{(relatedProduct.price || 0).toLocaleString()}đ</p>
                         </div>
-                        <div className='col-span-1 grid gap-2 hover:text-red-500 transition duration-300'>
-                            <img src="https://kinhmateyeplus.com/wp-content/uploads/2024/11/IMG_9798.png" alt="" width={300} height={300} />
-                            <p className='font-bold'>GỌNG KÍNH BLANCY 1012 - C12 Trắng</p>
-                            <p className='text-red-500 font-bold'>360.000đ</p>
-                        </div>
-                        <div className='col-span-1 grid gap-2 hover:text-red-500 transition duration-300'>
-                            <img src="https://kinhmateyeplus.com/wp-content/uploads/2024/11/IMG_9798.png" alt="" width={300} height={300} />
-                            <p className='font-bold'>GỌNG KÍNH BLANCY 1012 - C12 Trắng</p>
-                            <p className='text-red-500 font-bold'>360.000đ</p>
-                        </div>
-                        <div className='col-span-1 grid gap-2 hover:text-red-500 transition duration-300'>
-                            <img src="https://kinhmateyeplus.com/wp-content/uploads/2024/11/IMG_9798.png" alt="" width={300} height={300} />
-                            <p className='font-bold'>GỌNG KÍNH BLANCY 1012 - C12 Trắng</p>
-                            <p className='text-red-500 font-bold'>360.000đ</p>
-                        </div>
-                    </div>
+                    ))}
                 </div>
             </div>
-        </div >
+        </div>
     );
 }
