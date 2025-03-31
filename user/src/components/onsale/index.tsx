@@ -55,7 +55,37 @@ export default function OnSaleProducts() {
 
         fetchProducts();
     }, []);
-
+    const fetchProducts = async () => {
+        try {
+            setLoading(true);
+            const allProductRes = await fetch("https://glassmanagement.vercel.app/api/product/get", {
+                method: "GET",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+            });
+    
+            if (!allProductRes.ok) {
+                throw new Error(`Lỗi API: ${allProductRes.status} - ${allProductRes.statusText}`);
+            }
+    
+            const text = await allProductRes.text();
+            console.log("📢 API Response:", text);
+    
+            if (!text || text.trim() === "") {
+                throw new Error("API trả về dữ liệu rỗng!");
+            }
+    
+            const allProducts = JSON.parse(text);
+            setProducts(allProducts);
+        } catch (error) {
+            console.error("❌ Lỗi khi lấy sản phẩm:", error);
+            alert("Không thể lấy danh sách sản phẩm. Vui lòng thử lại!");
+        } finally {
+            setLoading(false);
+        }
+    };
+    
     const formatTime = (time: number) => String(Math.max(0, time)).padStart(2, "0");
     const hours = formatTime(Math.floor(timeLeft / 3600));
     const minutes = formatTime(Math.floor((timeLeft % 3600) / 60));

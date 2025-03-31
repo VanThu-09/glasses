@@ -25,17 +25,17 @@ document.querySelector(".sign-up form").addEventListener("submit", async (event)
       body: JSON.stringify({ name, email, password }),
     });
 
+    if (!response.ok) {
+      throw new Error(`HTTP error! Status: ${response.status}`);
+    }
+
     const data = await response.json();
 
-    if (response.status === 201) {
-      alert("Đăng ký thành công! Hãy đăng nhập.");
-      container.classList.remove("active");
-    } else {
-      alert(data.message || "Đăng ký thất bại!");
-    }
+    alert("Đăng ký thành công! Hãy đăng nhập.");
+    container.classList.remove("active");
   } catch (error) {
     console.error("Lỗi:", error);
-    alert("Lỗi kết nối đến server!");
+    alert("Lỗi kết nối đến server hoặc thông tin không hợp lệ!");
   }
 });
 
@@ -53,21 +53,29 @@ document.querySelector(".sign-in form").addEventListener("submit", async (event)
       body: JSON.stringify({ email, password }),
     });
 
-    console.log("Raw Response:", response); // Kiểm tra phản hồi HTTP
+    console.log("Raw Response:", response);
 
     if (!response.ok) {
       throw new Error(`HTTP error! Status: ${response.status}`);
     }
 
+    // Kiểm tra nếu phản hồi là JSON
+    const contentType = response.headers.get("content-type");
+    if (!contentType || !contentType.includes("application/json")) {
+      throw new Error("Phản hồi không phải JSON");
+    }
+
     const data = await response.json();
-    console.log("Parsed Data:", data); // Kiểm tra dữ liệu JSON
+    console.log("Parsed Data:", data);
 
     if (data.userInfo) {
+      localStorage.setItem("accessToken", data.accessToken); // Lưu accessToken
       localStorage.setItem("user", JSON.stringify({
         id: data.userInfo.id,
         name: data.userInfo.name,
         email: data.userInfo.email
       }));
+
       alert("Đăng nhập thành công!");
       window.location.href = "/"; // Điều hướng sau khi đăng nhập thành công
     } else {
@@ -75,7 +83,6 @@ document.querySelector(".sign-in form").addEventListener("submit", async (event)
     }
   } catch (error) {
     console.error("Lỗi:", error);
-    alert("Lỗi kết nối đến server!");
+    alert("Lỗi kết nối đến server hoặc thông tin không hợp lệ!");
   }
 });
-

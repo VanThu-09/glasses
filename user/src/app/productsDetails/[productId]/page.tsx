@@ -2,6 +2,10 @@
 import React, { useEffect, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { Swiper, SwiperSlide } from "swiper/react";
+import { Autoplay } from "swiper/modules";
+import "swiper/css";
+import "swiper/css/autoplay";
 import { useRouter } from 'next/navigation';
 
 export default function ProductDetailsPage({ params }: { params: { productId: string } }) {
@@ -186,16 +190,35 @@ export default function ProductDetailsPage({ params }: { params: { productId: st
                 </div>
             </div>
             {/* Thông tin chi tiết sản phẩm và sản phẩm liên quan */}
-            <div className='mt-10 mx-40'>
-                <p className='text-2xl'>Sản phẩm khác:</p>
-                <div className='grid grid-cols-5 gap-4 mt-5'>
-                    {relatedProducts.slice(0, 5).map(relatedProduct => (
-                        <div key={relatedProduct.id} className='col-span-1 grid gap-2 hover:text-red-500 transition duration-300'>
-                            <img src={relatedProduct.images?.split(',')[0]} alt={relatedProduct.name} width={300} height={300} />
-                            <p className='font-bold'>{relatedProduct.name}</p>
-                            <p className='text-red-500 font-bold'>{(relatedProduct.price || 0).toLocaleString()}đ</p>
-                        </div>
-                    ))}
+            <p className=" mt-20 mx-40 text-2xl bg-white">Sản phẩm khác:</p>
+            <div className='bg-stone-50'>
+                <div className="pt-5 mx-40">
+                    <Swiper
+                        spaceBetween={20}
+                        slidesPerView={5}
+                        loop={true}
+                        autoplay={{ delay: 2000, disableOnInteraction: false }}
+                        modules={[Autoplay]}
+                        className="w-full"
+                    >
+                        {relatedProducts.map((relatedProduct) => (
+                            <SwiperSlide key={relatedProduct.id}>
+                                <div className="text-center hover:text-red-500 transition duration-300">
+                                    <img
+                                        src={relatedProduct.images?.split(",")[0]}
+                                        alt={relatedProduct.name}
+                                        width={300}
+                                        height={300}
+                                        className="mx-auto border-2 rounded-md"
+                                    />
+                                    <p className="font-bold mt-2">{relatedProduct.name}</p>
+                                    <p className="text-red-500 font-bold">
+                                        {(relatedProduct.price || 0).toLocaleString()}đ
+                                    </p>
+                                </div>
+                            </SwiperSlide>
+                        ))}
+                    </Swiper>
                 </div>
             </div>
         </div>

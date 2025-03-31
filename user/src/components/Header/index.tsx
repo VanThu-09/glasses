@@ -8,34 +8,26 @@ export default function Header() {
     const [isLoggedIn, setIsLoggedIn] = useState(false);
 
     useEffect(() => {
-        // Kiểm tra xem token có trong localStorage không
-        const token = localStorage.getItem("accessToken");
-        if (token) {
-            setIsLoggedIn(true);
-        }
+        const checkLoginStatus = () => {
+            const token = localStorage.getItem("accessToken");
+            setIsLoggedIn(!!token); // Nếu có token -> true, không có -> false
+        };
+
+        checkLoginStatus(); // Kiểm tra ngay khi component render
+        window.addEventListener("storage", checkLoginStatus); // Nghe sự kiện thay đổi localStorage
+
+        return () => window.removeEventListener("storage", checkLoginStatus);
     }, []);
 
     const handleLogout = () => {
-        localStorage.removeItem("accessToken"); // Xóa token
-        setIsLoggedIn(false); // Cập nhật giao diện
+        localStorage.removeItem("accessToken");
+        localStorage.removeItem("user");
+        setIsLoggedIn(false);
+        window.dispatchEvent(new Event("storage")); // Cập nhật trạng thái đăng nhập
     };
-
     const UserDropdown = () => {
         const [isOpen, setIsOpen] = useState(false);
         const menuRef = useRef(null);
-
-        return (
-            <ul className={`menu dropdown-content menu-sm bg-base-100 rounded-box z-[1] mt-3 w-32 p-2 shadow ${isOpen ? "block" : "hidden"}`}>
-                <li><Link href="#">Profile</Link></li>
-                <li><Link href={"/orders"}>Your Order</Link></li>
-                <li><Link href="#">Settings</Link></li>
-                {isLoggedIn ? (
-                    <li><button onClick={handleLogout}>Logout</button></li>
-                ) : (
-                    <li><Link href={"/log/index.html"}>Login</Link></li>
-                )}
-            </ul>
-        );
     };
     return (
         <div className='text-black  sticky shadow top-0 z-[50]' style={{ height: "max-content" }}>
@@ -78,11 +70,11 @@ export default function Header() {
                             </button>
                             <ul className={`menu dropdown-content menu-sm bg-base-100 rounded-box z-[1] mt-3 w-32 p-2 shadow ${isOpen ? "block" : "hidden"}`}>
                                 <li><Link href="/profile">Profile</Link></li>
-                                <li><Link href={"/orders"}>Your Order</Link></li>
+                                <li><Link href="/orders">Your Order</Link></li>
                                 {isLoggedIn ? (
                                     <li><button onClick={handleLogout}>Log Out</button></li>
                                 ) : (
-                                    <li><Link href={"/log/index.html"}>Log In</Link></li>
+                                    <li><Link href="/log/index.html">Log In</Link></li>
                                 )}
                             </ul>
                         </div>
