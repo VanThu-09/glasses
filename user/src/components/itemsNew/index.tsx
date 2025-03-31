@@ -32,7 +32,14 @@ export default function OnSaleProducts() {
         fetchProducts();
     }, []);
 
-    if (loading) return <p>Loading...</p>;
+    if (loading) return (
+        <div className="flex w-full my-10 flex-col gap-4">
+            <div className="skeleton h-32 w-full"></div>
+            <div className="skeleton h-4 w-28"></div>
+            <div className="skeleton h-4 w-full"></div>
+            <div className="skeleton h-4 w-full"></div>
+        </div>
+    );
 
     return (
         <div className="mx-32 my-20">
@@ -43,7 +50,7 @@ export default function OnSaleProducts() {
             <div className="grid grid-cols-4 gap-4 mt-10">
                 {products.map((product) => (
                     <Link key={product.id} href={`/productsDetails/${product.id}`} className="col-span-1 grid gap-2">
-                        <img className="w-72" src={product.images?.split(",")[0]} alt={product.name} />
+                        <img className="w-72 rounded-lg" src={product.images?.split(",")[0]} alt={product.name} />
                         <p className="text-gray-400 text-sm">{product.category}</p>
                         <h1 className="font-bold">{product.name}</h1>
                         <p className="font-bold text-red-500">{(product.price || 0).toLocaleString()}đ</p>

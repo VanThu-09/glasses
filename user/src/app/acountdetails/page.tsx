@@ -61,6 +61,7 @@ export default function AccountDetails() {
         try {
             const response = await fetch("https://glassmanagement.vercel.app/api/update-user-info", {
                 method: "POST",
+                credentials: "include",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(user),
             });

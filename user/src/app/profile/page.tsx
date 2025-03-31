@@ -38,10 +38,10 @@ export default function Profile() {
                     <div className="flex justify-center items-center mb-4">
                         <h2 className="text-3xl font-bold bg-slate-200 p-2 px-3 rounded-lg">User Profile</h2>
                     </div>
-                    <div className="flex flex-col items-center">
+                    {/* <div className="flex flex-col items-center">
                         <img src={""} alt="Avatar" className="h-16 w-16 rounded-full mb-2" />
-                    </div>
-                    <div className="space-y-4 gap-2 grid">
+                    </div> */}
+                    <div className="space-y-4 gap-2 my-16 grid">
                         <div className="flex justify-between border p-3 rounded-md">
                             <label className="font-medium text-lg">Email:</label>
                             <p>{user.email || "Chưa có dữ liệu"}</p>

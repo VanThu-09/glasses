@@ -26,9 +26,9 @@ export default function OrderID() {
                         {/* <div className="cursor-pointer text-center text-xl font-bold border-4 bg-green-300 px-3 py-1 rounded-full">
                             Pay Now
                         </div> */}
-                        <div className="cursor-pointer text-center text-xl font-bold border-4 bg-gray-300 px-3 py-1 rounded-full">
+                        {/* <div className="cursor-pointer text-center text-xl font-bold border-4 bg-gray-300 px-3 py-1 rounded-full">
                             Paid
-                        </div>
+                        </div> */}
                     </div>
                     <div className='border-b p-8 gap-2 grid grid-cols-12'>
                         <div className='col-span-2'>

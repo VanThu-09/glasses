@@ -7,12 +7,12 @@ export default function Checkout() {
         toString();
     }
     return (
-        <div className='mx-4 mx-20 my-10 md:mx-8 md:my-10 lg:mx-60 lg:my-16'>
+        <div className='mx-20 my-10 md:mx-8 md:my-10 lg:mx-60 lg:my-16'>
             <div className='shadow rounded-lg bg-white'>
                 <div className='p-10'>
                     <p className='text-2xl text-center font-bold'>Checkout</p>
                     <div className=' bg-white p-2 py-10 rounded-lg'>
-                        <div className='grid grid-cols-3 p-1 border-4 rounded-md border-red-50'>
+                        <div className='grid grid-cols-3 p-1 border-2 rounded-md border-red-50'>
                             <div className='col-span-2 flex gap-5'>
                                 <img className='w-32 h-32' src="https://kinhmateyeplus.com/wp-content/uploads/2024/11/IMG_9798.png" alt=''></img>
                                 <div className='mt-5'>

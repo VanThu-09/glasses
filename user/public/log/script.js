@@ -73,6 +73,8 @@ document.querySelector(".sign-in form").addEventListener("submit", async (event)
       localStorage.setItem("user", JSON.stringify({
         id: data.userInfo.id,
         name: data.userInfo.name,
+        phone: data.userInfo.phone,
+        address: data.userInfo.address,
         email: data.userInfo.email
       }));
 
