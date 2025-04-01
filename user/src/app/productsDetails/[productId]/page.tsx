@@ -1,9 +1,11 @@
 "use client";
 import React, { useEffect, useState } from 'react';
-import Image from 'next/image';
-import Link from 'next/link';
+import { Swiper, SwiperSlide } from "swiper/react";
+import { Autoplay } from "swiper/modules";
+import "swiper/css";
+import "swiper/css/autoplay";
 import { useRouter } from 'next/navigation';
-
+import Link from 'next/link';
 export default function ProductDetailsPage({ params }: { params: { productId: string } }) {
     const router = useRouter();
     const { productId } = params;
@@ -37,8 +39,9 @@ export default function ProductDetailsPage({ params }: { params: { productId: st
             try {
                 const response = await fetch("https://glassmanagement.vercel.app/api/product/get-paginated", {
                     method: "POST",
+                    credentials: "include",
                     headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ page: 1, limit: 1, filter: { _id: params.productId } }),
+                    body: JSON.stringify({ page: (Number(params.productId) - 5), limit: 1, filter: { _id: params.productId } }),
                 });
 
                 if (!response.ok) throw new Error(`Failed to fetch product details: ${response.statusText}`);
@@ -68,6 +71,7 @@ export default function ProductDetailsPage({ params }: { params: { productId: st
             try {
                 const response = await fetch("https://glassmanagement.vercel.app/api/product/get-paginated", {
                     method: "POST",
+                    credentials: "include",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({ page: 1, limit: 4, filter: { category: product.category } }),
                 });
@@ -84,7 +88,12 @@ export default function ProductDetailsPage({ params }: { params: { productId: st
         if (product) fetchRelatedProducts();
     }, [product]);
 
-    if (loading) return <p>Loading...</p>;
+    if (loading) return <div className="flex w-full flex-col gap-4">
+        <div className="skeleton h-32 w-full"></div>
+        <div className="skeleton h-4 w-28"></div>
+        <div className="skeleton h-4 w-full"></div>
+        <div className="skeleton h-4 w-full"></div>
+    </div>;
     if (error) return <p>Error: {error}</p>;
     if (!product) return <p>Product not found.</p>;
 
@@ -97,6 +106,46 @@ export default function ProductDetailsPage({ params }: { params: { productId: st
     const nextSlide = () => {
         setCurrentIndex((prevIndex) => (prevIndex === images.length - 1 ? 0 : prevIndex + 1));
     };
+
+    const handleUpdateCart = async () => {
+        try {
+            // 📝 Lấy userId từ localStorage
+            const storedUser = localStorage.getItem("user");
+            if (!storedUser) {
+                alert("Bạn cần đăng nhập để thêm sản phẩm vào giỏ hàng!");
+                return false;
+            }
+            const { id: userId } = JSON.parse(storedUser);
+            console.log("📢 Dữ liệu gửi lên API:", { userId, productId: product.id, quantity: 1 });
+            if (!userId) {
+                alert("Không tìm thấy ID người dùng! Vui lòng đăng nhập lại.");
+                return false;
+            }
+
+            const res = await fetch("https://glassmanagement.vercel.app/api/cart/add", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    userId, // ✅ Thêm userId
+                    productId: product.id,
+                    quantity: 1,
+                }),
+            });
+
+            const data = await res.json();
+
+            if (!res.ok) {
+                throw new Error(data.message || "Không thể thêm sản phẩm vào giỏ hàng!");
+            }
+            return true;
+        } catch (error) {
+            console.error("❌ Lỗi khi thêm vào giỏ hàng:", error);
+            alert("❌ Lỗi khi thêm vào giỏ hàng, vui lòng thử lại!");
+            return false;
+        }
+    };
+
+
     return (
         <div>
             <div className='mx-32 mt-20'>
@@ -104,9 +153,9 @@ export default function ProductDetailsPage({ params }: { params: { productId: st
                     <div className='col-span-3'>
                         <div className="w-full max-w-2xl mx-auto relative">
                             <div className="relative flex justify-center">
-                                <button onClick={prevSlide} className="absolute left-11 top-1/2 transform -translate-y-1/2  text-red-500 shadow bg-white p-2 rounded-full">&#10094;</button>
+                                <button onClick={prevSlide} className="absolute left-11 top-1/2 transform -translate-y-1/2  text-red-500 shadow bg-neutral-50 p-2 rounded-full">&#10094;</button>
                                 <img src={images[currentIndex]} alt="Slideshow" className="w-10/12 object-cover rounded-lg shadow-md" />
-                                <button onClick={nextSlide} className="absolute right-11 top-1/2 transform -translate-y-1/2 text-red-500 shadow bg-white p-2 rounded-full">&#10095;</button>
+                                <button onClick={nextSlide} className="absolute right-11 top-1/2 transform -translate-y-1/2 text-red-500 shadow bg-neutral-50 p-2 rounded-full">&#10095;</button>
                             </div>
                             <div className="flex justify-center gap-2 mt-4">
                                 {images.map((image, index) => (
@@ -130,11 +179,31 @@ export default function ProductDetailsPage({ params }: { params: { productId: st
                                     </div>
                                 </div>
                             </div>
-                            <div className='col-span-1 grid gap-2 hover:text-red-500 transition duration-300'>
-                                <button className='rounded-3xl p-2 text-lg font-bold border-black border w-full'>Thêm vào giỏ hàng</button>
+                            <div className="col-span-1 grid gap-2 hover:text-red-500 transition duration-300">
+                                <button
+                                    onClick={async () => {
+                                        if (await handleUpdateCart()) {
+                                            alert("✅ Sản phẩm đã thêm vào giỏ hàng!");
+                                        }
+                                    }}
+                                    className="rounded-3xl p-2 text-lg font-bold border-black border w-full transition duration-300 hover:bg-gray-100"
+                                >
+                                    Thêm vào giỏ hàng
+                                </button>
                             </div>
+
                         </div>
-                        <button className='mt-5 bg-red-500 rounded-3xl p-2 w-full'><p className='text-center text-2xl text-white'>Mua ngay</p></button>
+                        <button
+                            onClick={async () => {
+                                if (await handleUpdateCart()) {
+                                    router.push("/cart");
+                                }
+                            }}
+                            className="mt-5 bg-red-500 rounded-3xl p-2 w-full transition duration-300 hover:bg-red-600"
+                        >
+                            <p className="text-center text-2xl text-white">Mua ngay</p>
+                        </button>
+
                     </div>
                     <div className='col-span-1 ms-7'>
                         <div className='grid gap-1 border-b shadow p-2'>
@@ -186,18 +255,44 @@ export default function ProductDetailsPage({ params }: { params: { productId: st
                 </div>
             </div>
             {/* Thông tin chi tiết sản phẩm và sản phẩm liên quan */}
-            <div className='mt-10 mx-40'>
-                <p className='text-2xl'>Sản phẩm khác</p>
-                <div className='grid grid-cols-4 gap-4 mt-5'>
-                    {relatedProducts.map(relatedProduct => (
-                        <div key={relatedProduct.id} className='col-span-1 grid gap-2 hover:text-red-500 transition duration-300'>
-                            <img src={relatedProduct.images?.split(',')[0]} alt={relatedProduct.name} width={300} height={300} />
-                            <p className='font-bold'>{relatedProduct.name}</p>
-                            <p className='text-red-500 font-bold'>{(relatedProduct.price || 0).toLocaleString()}đ</p>
-                        </div>
-                    ))}
+            <p className=" mt-20 mx-40 text-2xl bg-white">Sản phẩm khác:</p>
+            <div className='bg-stone-50'>
+                <div className="pt-5 mx-40">
+                    <Swiper
+                        spaceBetween={20}
+                        slidesPerView={5}
+                        loop={true}
+                        autoplay={{ delay: 2000, disableOnInteraction: false }}
+                        modules={[Autoplay]}
+                        className="w-full"
+                    >
+                        {relatedProducts.map((relatedProduct) => (
+                            <SwiperSlide key={relatedProduct.id}>
+                                <Link key={product.id}
+                                    href={`/productsDetails/${product.id}`}>
+                                    <div className="text-center hover:text-red-500 transition duration-300">
+                                        <img
+                                            src={relatedProduct.images?.split(",")[0]}
+                                            alt={relatedProduct.name}
+                                            width={300}
+                                            height={300}
+                                            className="mx-auto border-2 rounded-md"
+                                        />
+                                        <p className="font-bold mt-2">{relatedProduct.name}</p>
+                                        <p className="text-red-500 font-bold">
+                                            {(relatedProduct.price || 0).toLocaleString()}đ
+                                        </p>
+                                    </div>
+                                </Link>
+                            </SwiperSlide>
+                        ))}
+                    </Swiper>
                 </div>
             </div>
         </div>
     );
+}
+
+function useAppSelector(arg0: (state: { UserRedux: { value: any; }; }) => any) {
+    throw new Error('Function not implemented.');
 }
