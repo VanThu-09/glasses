@@ -25,20 +25,16 @@ export default function Header() {
         setIsLoggedIn(false);
         window.dispatchEvent(new Event("storage")); // Cập nhật trạng thái đăng nhập
     };
-    const UserDropdown = () => {
-        const [isOpen, setIsOpen] = useState(false);
-        const menuRef = useRef(null);
-    };
     return (
         <div className='text-black  sticky shadow top-0 z-[50]' style={{ height: "max-content" }}>
-            <div className="navbar bg-base-100 flex justify-between">
+            <div className="navbar bg-base-100 flex justify-between p-4">
                 <div className='flex gap-8'>
                     <Link href={"/"} className="grid justify-items-center">
                         <Image className='' src="https://kinhmateyeplus.com/wp-content/uploads/2024/10/Mark.svg" alt="" width={50} height={50} />
-                        <h1 className="hover:text-rose-500 transition duration-300 font-semibold text-xl">GlassesVT</h1>
+                        <h1 className="hover:text-rose-500 transition duration-300 font-bold text-xl ">GlassesVT</h1>
                     </Link>
                 </div>
-                <div className='flex gap-5'>
+                {isLoggedIn ?<div className='flex gap-5'>
                     <button>
                         <svg className='w-6 h-6 text-center' xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M18.031 16.6168L22.3137 20.8995L20.8995 22.3137L16.6168 18.031C15.0769 19.263 13.124 20 11 20C6.032 20 2 15.968 2 11C2 6.032 6.032 2 11 2C15.968 2 20 6.032 20 11C20 13.124 19.263 15.0769 18.031 16.6168ZM16.0247 15.8748C17.2475 14.6146 18 12.8956 18 11C18 7.1325 14.8675 4 11 4C7.1325 4 4 7.1325 4 11C4 14.8675 7.1325 18 11 18C12.8956 18 14.6146 17.2475 15.8748 16.0247L16.0247 15.8748Z"></path></svg>
                     </button>
@@ -71,15 +67,11 @@ export default function Header() {
                             <ul className={`menu dropdown-content menu-sm bg-base-100 rounded-box z-[1] mt-3 w-32 p-2 shadow ${isOpen ? "block" : "hidden"}`}>
                                 <li><Link href="/profile">Profile</Link></li>
                                 <li><Link href="/orders">Your Order</Link></li>
-                                {isLoggedIn ? (
-                                    <li><button onClick={handleLogout}>Log Out</button></li>
-                                ) : (
-                                    <li><Link href="/log/index.html">Log In</Link></li>
-                                )}
+                                <li><button onClick={handleLogout}>Log Out</button></li>
                             </ul>
                         </div>
                     </div>
-                </div>
+                </div> : <button className='bg-red-200 p-3 rounded-lg text-sm font-medium' ><Link href="/log/index.html">Log In</Link></button>}
             </div>
         </div>
     )

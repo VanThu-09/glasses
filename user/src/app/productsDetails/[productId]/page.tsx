@@ -19,18 +19,19 @@ export default function ProductDetailsPage({ params }: { params: { productId: st
         images?: string;
         category?: string;
     }
-    console.log("Product ID:", params.productId);
-    console.log("Fetching product...");
-    console.log("API Body:", JSON.stringify({ page: 1, limit: 1, filter: { _id: params.productId } }));
-    console.log("Params object:", params); // Kiểm tra toàn bộ params
-    console.log("Product ID:", params?.productId);
     const [product, setProduct] = useState<Product | null>(null);
     const [relatedProducts, setRelatedProducts] = useState<Product[]>([]);
     const [currentIndex, setCurrentIndex] = useState(0);
     const [count, setCount] = useState(1);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
-
+    const hanldeChangeQuantity = (e: React.ChangeEvent<HTMLInputElement>)=> {
+        if(+e.target.value <= 0 ){
+            setCount(1)
+        }else {
+            setCount(+e.target.value)
+        }
+    }
     useEffect(() => {
         async function fetchProductDetails() {
             setLoading(true);
@@ -107,7 +108,7 @@ export default function ProductDetailsPage({ params }: { params: { productId: st
         setCurrentIndex((prevIndex) => (prevIndex === images.length - 1 ? 0 : prevIndex + 1));
     };
 
-    const handleUpdateCart = async () => {
+    const handleAddCart = async () => {
         try {
             // 📝 Lấy userId từ localStorage
             const storedUser = localStorage.getItem("user");
@@ -116,7 +117,6 @@ export default function ProductDetailsPage({ params }: { params: { productId: st
                 return false;
             }
             const { id: userId } = JSON.parse(storedUser);
-            console.log("📢 Dữ liệu gửi lên API:", { userId, productId: product.id, quantity: 1 });
             if (!userId) {
                 alert("Không tìm thấy ID người dùng! Vui lòng đăng nhập lại.");
                 return false;
@@ -126,16 +126,18 @@ export default function ProductDetailsPage({ params }: { params: { productId: st
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
-                    userId, // ✅ Thêm userId
+                    userId, //
                     productId: product.id,
-                    quantity: 1,
+                    quantity: count,
                 }),
             });
 
             const data = await res.json();
 
-            if (!res.ok) {
-                throw new Error(data.message || "Không thể thêm sản phẩm vào giỏ hàng!");
+            if (res.status === 400) {
+                const {message} = data
+                alert(message)
+                return false;
             }
             return true;
         } catch (error) {
@@ -174,7 +176,7 @@ export default function ProductDetailsPage({ params }: { params: { productId: st
                                 <div className='flex justify-center'>
                                     <div className="flex border rounded-3xl p-2 w-full justify-between">
                                         <button className="rounded-lg px-3 hover:bg-gray-300 text-xl duration-300:opacity-50" onClick={() => setCount(count - 1)} disabled={count === 1}>－</button>
-                                        <span className="text-xl font-semibold">{count}</span>
+                                        <input className="text-center focus:ring-0 focus:outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" type="number" value={count} onChange={hanldeChangeQuantity} id="" />
                                         <button className="rounded-lg px-2 hover:bg-gray-300 text-xl" onClick={() => setCount(count + 1)}>＋</button>
                                     </div>
                                 </div>
@@ -182,7 +184,8 @@ export default function ProductDetailsPage({ params }: { params: { productId: st
                             <div className="col-span-1 grid gap-2 hover:text-red-500 transition duration-300">
                                 <button
                                     onClick={async () => {
-                                        if (await handleUpdateCart()) {
+                                        const bool = await handleAddCart()
+                                        if (bool) {
                                             alert("✅ Sản phẩm đã thêm vào giỏ hàng!");
                                         }
                                     }}
@@ -195,7 +198,7 @@ export default function ProductDetailsPage({ params }: { params: { productId: st
                         </div>
                         <button
                             onClick={async () => {
-                                if (await handleUpdateCart()) {
+                                if (await handleAddCart()) {
                                     router.push("/cart");
                                 }
                             }}
@@ -255,6 +258,8 @@ export default function ProductDetailsPage({ params }: { params: { productId: st
                 </div>
             </div>
             {/* Thông tin chi tiết sản phẩm và sản phẩm liên quan */}
+                        
+
             <p className=" mt-20 mx-40 text-2xl bg-white">Sản phẩm khác:</p>
             <div className='bg-stone-50'>
                 <div className="pt-5 mx-40">

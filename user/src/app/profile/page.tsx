@@ -37,7 +37,7 @@ export default function Profile() {
     
 
     return (
-        <div className="mx-32 mb-20 mt-10">
+        <div className="mx-60 mb-20 mt-10">
             <div className="flex justify-center text-black py-10 rounded-lg bg-red-50 w-full">
                 <div className="bg-white rounded-lg shadow p-10 w-2/5">
                     <div className="flex justify-center items-center mb-4">

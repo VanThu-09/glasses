@@ -2,43 +2,88 @@
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+
+import { updateCartItemQtt } from "@/services/cartServices";
 export default function Cart() {
     const [cartItems, setCartItems] = useState<{ id: string; name: string; image_thumbs: any; color_mapping: any; price: number; quantity: number }[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [shippingFee, setShippingFee] = useState(25000);
+    const [userId, setUserId] = useState(null);
     const router = useRouter();
-    useEffect(() => {
-        const fetchCart = async () => {
-            try {
-                const user = JSON.parse(localStorage.getItem('user') || '{}');
-                const userId = user.id;
-                const response = await fetch(`https://glassmanagement.vercel.app/api/cart/get/${userId}`);
-                const data = await response.json();
-                if (response.ok) {
-                    // Thêm thuộc tính quantity mặc định là 1 nếu chưa có
-                    const updatedCart = data.data.map((item: any) => ({ ...item, quantity: item.quantity || 1 }));
-                    setCartItems(updatedCart);
-                } else {
-                    throw new Error(data.message);
-                }
-            } catch (err: Error | any) {
-                setError(err.message);
-            } finally {
-                setLoading(false);
+    const fetchCart = async () => {
+        try {
+            const user = JSON.parse(localStorage.getItem('user') || '{}');
+            const   userId = user.id
+            setUserId(user?.id)
+            const response = await fetch(`https://glassmanagement.vercel.app/api/cart/get/${userId}`);
+            const data = await response.json();
+            if (response.ok) {
+                // Thêm thuộc tính quantity mặc định là 1 nếu chưa có
+                const updatedCart = data.data.map((item: any) => ({ ...item, quantity: item.quantity || 1 }));
+                setCartItems(updatedCart);
+            } else {
+                throw new Error(data.message)   ;
             }
-        };
+        } catch (err: Error | any) {
+            setError(err.message);
+        } finally {
+            setLoading(false);
+        }
+    };
+    useEffect(() => {
         fetchCart();
     }, []);
 
     // Hàm tăng số lượng
-    const increaseQuantity = (id: string) => {
-        setCartItems(cartItems.map(item => item.id === id ? { ...item, quantity: item.quantity + 1 } : item));
+    const increaseQuantity = async (id: string) => {
+        const items = cartItems.filter((item) => item.id === id)
+        const quantity = items[0].quantity
+        const afterIncrease = quantity +1 
+        const data= {
+            userId,
+            productId: id,
+            quantity: afterIncrease
+        }
+        const res = await updateCartItemQtt(data)
+        const {message} = await res?.json()
+        if(!message){
+            setCartItems(cartItems.map(item => item.id === id ? { ...item, quantity: item.quantity + 1 } : item));
+        }else {
+            alert("Không đủ số lượng")
+        }
     };
 
     // Hàm giảm số lượng (không giảm dưới 1)
-    const decreaseQuantity = (id: string) => {
-        setCartItems(cartItems.map(item => item.id === id && item.quantity > 1 ? { ...item, quantity: item.quantity - 1 } : item));
+    const decreaseQuantity = async (id: string) => {
+        const items = cartItems.filter((item) => item.id === id)
+        const quantity = items[0].quantity
+        const afterDecrease = quantity -1
+        const data= {
+            userId,
+            productId: id,
+            quantity: afterDecrease
+        }
+
+        if(afterDecrease ===0){
+            const sureToDelete  = confirm(`Bạn có muốn xóa sản phẩm ${items[0].name}`)
+            if(sureToDelete) {
+                const res = await updateCartItemQtt(data)
+                const {message} = await res?.json()
+                if(res?.ok) {
+                    alert(`Xóa sản phẩm thành công ${items[0].name}`) 
+                    await fetchCart()
+                }else {
+                    alert(message)
+                }
+            }
+        }else {
+            setCartItems(cartItems.map(item => item.id === id && item.quantity > 1 ? { ...item, quantity: item.quantity - 1 } : item));
+            await updateCartItemQtt(data)
+            
+        }
+
+
     };
 
     // Hàm xóa sản phẩm khỏi giỏ hàng
@@ -58,7 +103,8 @@ export default function Cart() {
                 throw new Error("Không thể xóa sản phẩm");
             }
 
-            setCartItems(cartItems.filter(item => item.id !== productId));
+            await fetchCart()
+            // setCartItems(cartItems.filter(item => item.id !== productId));
         } catch (err: any) {
             console.error("❌ Lỗi khi xóa sản phẩm:", err);
             alert(`Lỗi: ${err.message}`);
@@ -70,21 +116,21 @@ export default function Cart() {
     };
 
     if (loading) return (
-        <div className="flex w-full my-10 flex-col gap-4">
+        <div className="flex my-10 flex-col gap-4 mx-60">
             <div className="skeleton h-32 w-full"></div>
             <div className="skeleton h-4 w-28"></div>
             <div className="skeleton h-4 w-full"></div>
             <div className="skeleton h-4 w-full"></div>
         </div>
     );
-    if (error) return <p>Error: {error}</p>;
+    if (error) return <p className="mx-60">Vui lòng đăng nhập để vào giỏ hàng</p>;
     const handleCheckout = () => {
         localStorage.setItem("checkoutCart", JSON.stringify(cartItems));
         localStorage.setItem("checkoutTotal", JSON.stringify(cartItems.reduce((sum, item) => sum + item.price * item.quantity, shippingFee)));
         router.push("/cart/checkout"); // Chuyển hướng đến trang checkout
     };
     return (
-        <div className="grid grid-cols-4 gap-4 mx-20">
+        <div className="grid grid-cols-4 gap-4 mx-60">
             <div className="col-span-3">
                 {cartItems.length === 0 ? (
                     <p className="p-5">Giỏ hàng trống</p>

@@ -26,7 +26,7 @@ export default function () {
                     </div>
                 </div>
             </div>
-            <p className='font-bold p-1 bg-red-500 rounded-md text-white' style={{ width: "max-content" }}>KÍNH MẮT GLASSES-VT</p>
+            <p className='font-bold p-3 bg-red-500 rounded-md text-white' style={{ width: "max-content" }}>KÍNH MẮT GLASSES-VT</p>
             <h1 className='text-5xl mt-3'>Chuỗi cửa hàng gọng kính uy tín nhất Hà Nội</h1>
             <div className='grid grid-cols-2 mt-16 gap-14 '>
                 <div className='col-span-1'>

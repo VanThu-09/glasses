@@ -11,7 +11,7 @@ export default function Order() {
         setSelected(index);
     };
     return (
-        <div className='flex flex-col mx-20'>
+        <div className='flex flex-col mx-60'>
             <form className="my-2 ">
                 <div className="relative">
                     <div className="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">

@@ -98,7 +98,7 @@ export default function AccountDetails() {
     };
     
     return (
-        <div className="mx-32 mb-20 mt-10">
+        <div className="mx-60 mb-20 mt-10">
             <div className="flex justify-center text-black py-10 rounded-lg bg-red-50 w-full">
                 <div className="bg-white rounded-lg shadow p-20">
                     <h2 className="text-3xl font-bold bg-slate-200 p-2 px-3 rounded-lg text-center mb-6">

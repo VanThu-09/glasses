@@ -33,7 +33,7 @@ export default function OnSaleProducts() {
     }, []);
 
     if (loading) return (
-        <div className="flex w-full my-10 flex-col gap-4">
+        <div className="flex mx-60 my-10 flex-col gap-4">
             <div className="skeleton h-32 w-full"></div>
             <div className="skeleton h-4 w-28"></div>
             <div className="skeleton h-4 w-full"></div>
@@ -42,7 +42,7 @@ export default function OnSaleProducts() {
     );
 
     return (
-        <div className="mx-32 my-20">
+        <div className="mx-60 my-20">
             <div className='text-center'>
                 <p className='text-4xl'>Mẫu kính mắt mới</p>
             </div>

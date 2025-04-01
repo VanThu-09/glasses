@@ -27,7 +27,7 @@ export default function OrderID() {
     }
 
     return (
-        <div className='flex flex-col mx-20'>
+        <div className='flex flex-col mx-60'>
             <div className='text-center mb-10 grid gap-4'>
                 <h1 className='text-4xl font-bold'>Successful</h1>
                 <p className='text-gray-400'>
