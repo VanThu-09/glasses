@@ -1,12 +1,13 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
-
+import { useRouter } from "next/navigation";
 export default function Cart() {
     const [cartItems, setCartItems] = useState<{ id: string; name: string; image_thumbs: any; color_mapping: any; price: number; quantity: number }[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-
+    const [shippingFee, setShippingFee] = useState(25000);
+    const router = useRouter();
     useEffect(() => {
         const fetchCart = async () => {
             try {
@@ -41,8 +42,31 @@ export default function Cart() {
     };
 
     // Hàm xóa sản phẩm khỏi giỏ hàng
-    const handleRemove = (id: string) => {
-        setCartItems(cartItems.filter((item) => item.id !== id));
+    const handleRemove = async (productId: string) => {
+        try {
+            const user = JSON.parse(localStorage.getItem('user') || '{}');
+            const userId = user?.id;
+
+            const response = await fetch('https://glassmanagement.vercel.app/api/cart/delete', {
+                method: 'POST',
+                credentials: "include",
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ userId, productId }),
+            });
+
+            if (!response.ok) {
+                throw new Error("Không thể xóa sản phẩm");
+            }
+
+            setCartItems(cartItems.filter(item => item.id !== productId));
+        } catch (err: any) {
+            console.error("❌ Lỗi khi xóa sản phẩm:", err);
+            alert(`Lỗi: ${err.message}`);
+        }
+    };
+    const handleShippingChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+        const selectedValue = e.target.value;
+        setShippingFee(selectedValue === "fast" ? 75000 : 25000);
     };
 
     if (loading) return (
@@ -54,7 +78,11 @@ export default function Cart() {
         </div>
     );
     if (error) return <p>Error: {error}</p>;
-
+    const handleCheckout = () => {
+        localStorage.setItem("checkoutCart", JSON.stringify(cartItems));
+        localStorage.setItem("checkoutTotal", JSON.stringify(cartItems.reduce((sum, item) => sum + item.price * item.quantity, shippingFee)));
+        router.push("/cart/checkout"); // Chuyển hướng đến trang checkout
+    };
     return (
         <div className="grid grid-cols-4 gap-4 mx-20">
             <div className="col-span-3">
@@ -94,7 +122,7 @@ export default function Cart() {
             <div className="col-span-1 shadow rounded-md bg-red-50 p-5">
                 <h1 className="text-xl font-semibold border-b pb-3">Order Summary</h1>
                 <p className="text-lg pt-8 pb-3">Shipping</p>
-                <select className="select select-info w-full">
+                <select className="select select-info w-full" onChange={handleShippingChange}>
                     <option disabled>Select method</option>
                     <option value="standard">Standard shipping - 25.000đ</option>
                     <option value="fast">Express delivery - 75.000đ</option>
@@ -106,15 +134,15 @@ export default function Cart() {
                     </div>
                     <div className="py-3 flex justify-between">
                         <p>Shipping</p>
-                        <p>25.000đ</p>
+                        <p>{shippingFee.toLocaleString()}đ</p>
                     </div>
                     <div className="py-3 flex justify-between">
                         <p>Total</p>
-                        <p>{(cartItems.reduce((sum, item) => sum + item.price * item.quantity, 25000)).toLocaleString()}đ</p>
+                        <p>{(cartItems.reduce((sum, item) => sum + item.price * item.quantity, shippingFee)).toLocaleString()}đ</p>
                     </div>
                 </div>
                 <Link href="/cart/checkout">
-                    <button className="btn bg-rose-600 text-white w-full mt-5">Check out</button>
+                    <button onClick={handleCheckout} className="btn bg-rose-600 text-white w-full mt-5">Check out</button>
                 </Link>
             </div>
         </div>

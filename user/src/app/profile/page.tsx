@@ -9,7 +9,12 @@ export default function Profile() {
         name: "",
         address: ""
     });
-
+    // useEffect(() => {
+    //     if (typeof window !== "undefined") {
+    //         localStorage.setItem("user", JSON.stringify(user));
+    //     }
+    // }, [user]);
+    
     useEffect(() => {
         if (typeof window !== "undefined") {
             const storedUser = localStorage.getItem("user");

@@ -5,7 +5,7 @@ import { Autoplay } from "swiper/modules";
 import "swiper/css";
 import "swiper/css/autoplay";
 import { useRouter } from 'next/navigation';
-
+import Link from 'next/link';
 export default function ProductDetailsPage({ params }: { params: { productId: string } }) {
     const router = useRouter();
     const { productId } = params;
@@ -137,9 +137,6 @@ export default function ProductDetailsPage({ params }: { params: { productId: st
             if (!res.ok) {
                 throw new Error(data.message || "Không thể thêm sản phẩm vào giỏ hàng!");
             }
-
-            // console.log("🛒 Thêm vào giỏ hàng thành công:", data);
-            // alert("🛍️ Sản phẩm đã được thêm vào giỏ hàng!");
             return true;
         } catch (error) {
             console.error("❌ Lỗi khi thêm vào giỏ hàng:", error);
@@ -271,19 +268,22 @@ export default function ProductDetailsPage({ params }: { params: { productId: st
                     >
                         {relatedProducts.map((relatedProduct) => (
                             <SwiperSlide key={relatedProduct.id}>
-                                <div className="text-center hover:text-red-500 transition duration-300">
-                                    <img
-                                        src={relatedProduct.images?.split(",")[0]}
-                                        alt={relatedProduct.name}
-                                        width={300}
-                                        height={300}
-                                        className="mx-auto border-2 rounded-md"
-                                    />
-                                    <p className="font-bold mt-2">{relatedProduct.name}</p>
-                                    <p className="text-red-500 font-bold">
-                                        {(relatedProduct.price || 0).toLocaleString()}đ
-                                    </p>
-                                </div>
+                                <Link key={product.id}
+                                    href={`/productsDetails/${product.id}`}>
+                                    <div className="text-center hover:text-red-500 transition duration-300">
+                                        <img
+                                            src={relatedProduct.images?.split(",")[0]}
+                                            alt={relatedProduct.name}
+                                            width={300}
+                                            height={300}
+                                            className="mx-auto border-2 rounded-md"
+                                        />
+                                        <p className="font-bold mt-2">{relatedProduct.name}</p>
+                                        <p className="text-red-500 font-bold">
+                                            {(relatedProduct.price || 0).toLocaleString()}đ
+                                        </p>
+                                    </div>
+                                </Link>
                             </SwiperSlide>
                         ))}
                     </Swiper>
