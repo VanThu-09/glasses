@@ -2,11 +2,13 @@
 import React, { useEffect, useState, useRef } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
+import useCartStore from '@/app/store/cartStore';
 export default function Header() {
     const [isOpen, setIsOpen] = useState(false);
     const menuRef = useRef(null);
     const [isLoggedIn, setIsLoggedIn] = useState(false);
-
+    const [cartNum, setCartNum] = useState(0);   
+    const {setCartItemNum, cart: {cartItemNum}} = useCartStore()
     useEffect(() => {
         const checkLoginStatus = () => {
             const token = localStorage.getItem("accessToken");
@@ -18,13 +20,33 @@ export default function Header() {
 
         return () => window.removeEventListener("storage", checkLoginStatus);
     }, []);
+    const getItemNum = async () => {
+        try {
+            const user = JSON.parse(localStorage.getItem("user") || "{}");
+            const userId = user.id;
+            const response = await fetch(`http://localhost:8000/api/cart/get/${userId}`);
+            const data = await response.json();
+            if (response.ok) {
+                const updatedCart = data.data
 
+                setCartItemNum(updatedCart.length)
+            } else {
+                throw new Error(data.message);
+            }
+        } catch (err: Error | any) {
+            console.log("Error header", err)
+        }
+    };
     const handleLogout = () => {
         localStorage.removeItem("accessToken");
         localStorage.removeItem("user");
         setIsLoggedIn(false);
         window.dispatchEvent(new Event("storage")); // Cập nhật trạng thái đăng nhập
     };
+
+    useEffect(() => {
+        getItemNum()
+    }, []);
     return (
         <div className='text-black  sticky shadow top-0 z-[50]' style={{ height: "max-content" }}>
             <div className="navbar bg-base-100 flex justify-between p-4">
@@ -54,7 +76,7 @@ export default function Header() {
                                             strokeWidth="2"
                                             d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
                                     </svg>
-                                    <span className="badge badge-sm bg-red-500 rounded-full p-1 text-white indicator-item">1</span>
+                                    <span className="badge badge-sm bg-red-500 rounded-full p-1 text-white indicator-item">{cartItemNum}</span>
                                 </div>
                             </Link>
                         </div>

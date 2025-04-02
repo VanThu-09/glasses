@@ -6,10 +6,11 @@ import "swiper/css";
 import "swiper/css/autoplay";
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import useCartStore from '@/app/store/cartStore';
 export default function ProductDetailsPage({ params }: { params: { productId: string } }) {
     const router = useRouter();
     const { productId } = params;
-
+    const {setCartItemNum, setCartItems, cart: {cartItemNum, cartItems}} = useCartStore()
     interface Product {
         id: React.Key | null | undefined;
         name: string;
@@ -18,6 +19,7 @@ export default function ProductDetailsPage({ params }: { params: { productId: st
         quantity: number;
         images?: string;
         category?: string;
+        prod_content :string| TrustedHTML
     }
     const [product, setProduct] = useState<Product | null>(null);
     const [relatedProducts, setRelatedProducts] = useState<Product[]>([]);
@@ -51,7 +53,7 @@ export default function ProductDetailsPage({ params }: { params: { productId: st
                 console.log("API Response:", data);
 
                 if (data && data.data.length > 0) {
-                    setProduct(data.data[0]);
+                        setProduct(data.data[0]);   
                 } else {
                     setError("Product not found.");
                 }
@@ -89,7 +91,7 @@ export default function ProductDetailsPage({ params }: { params: { productId: st
         if (product) fetchRelatedProducts();
     }, [product]);
 
-    if (loading) return <div className="flex w-full flex-col gap-4">
+    if (loading) return <div className="flex flex-col gap-4 mx-52">
         <div className="skeleton h-32 w-full"></div>
         <div className="skeleton h-4 w-28"></div>
         <div className="skeleton h-4 w-full"></div>
@@ -110,7 +112,6 @@ export default function ProductDetailsPage({ params }: { params: { productId: st
 
     const handleAddCart = async () => {
         try {
-            // 📝 Lấy userId từ localStorage
             const storedUser = localStorage.getItem("user");
             if (!storedUser) {
                 alert("Bạn cần đăng nhập để thêm sản phẩm vào giỏ hàng!");
@@ -122,7 +123,7 @@ export default function ProductDetailsPage({ params }: { params: { productId: st
                 return false;
             }
 
-            const res = await fetch("https://glassmanagement.vercel.app/api/cart/add", {
+            const res = await fetch("http://localhost:8000/api/cart/add", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
@@ -139,6 +140,12 @@ export default function ProductDetailsPage({ params }: { params: { productId: st
                 alert(message)
                 return false;
             }
+
+            const isInCart = Array.from(cartItems).some((item:any) => item.id === product.id)
+            if(!isInCart) {
+                setCartItemNum(cartItemNum +1)
+            }
+            setCartItems(data.data)
             return true;
         } catch (error) {
             console.error("❌ Lỗi khi thêm vào giỏ hàng:", error);
@@ -150,7 +157,7 @@ export default function ProductDetailsPage({ params }: { params: { productId: st
 
     return (
         <div>
-            <div className='mx-32 mt-20'>
+            <div className='mx-52 mt-20'>
                 <div className='grid grid-cols-7 gap-2'>
                     <div className='col-span-3'>
                         <div className="w-full max-w-2xl mx-auto relative">
@@ -258,7 +265,7 @@ export default function ProductDetailsPage({ params }: { params: { productId: st
                 </div>
             </div>
             {/* Thông tin chi tiết sản phẩm và sản phẩm liên quan */}
-                        
+            <div className='mx-52 custom_detail_info' dangerouslySetInnerHTML={{__html: product.prod_content}}></div>
 
             <p className=" mt-20 mx-40 text-2xl bg-white">Sản phẩm khác:</p>
             <div className='bg-stone-50'>

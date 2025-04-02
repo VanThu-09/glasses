@@ -69,3 +69,25 @@
     }
 
 }
+
+.custom_detail_info {
+    h2 {
+        color: rgba($color: #ff0000, $alpha: 0.7);
+        font-weight: 700;
+    }
+
+    img {
+        width: 400px;
+    }
+
+    li::marker {
+        content: "●";
+        font-size: 1.2rem;
+    }
+
+    li {
+        
+        margin-left: 4px;
+    }
+}
+

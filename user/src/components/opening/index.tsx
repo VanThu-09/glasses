@@ -15,7 +15,7 @@ export default function () {
         return () => clearInterval(interval);
     }, []);
     return (
-        <div className='mx-32'>
+        <div className='mx-52'>
             <div>
                 <div className="relative w-full mb-10">
                     <div className="relative overflow-hidden rounded-lg">

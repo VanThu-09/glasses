@@ -5,7 +5,7 @@ import Link from 'next/link';
 export default function YouKnow() {
     return (
         <div className='bg-gray-200 w-full mt-16'>
-            <div className='grid grid-cols-7 mx-32 py-16'>
+            <div className='grid grid-cols-7 mx-52 py-16'>
                 <div className='col-span-3'>
                     <div className='grid gap-4'>
                         <div>
